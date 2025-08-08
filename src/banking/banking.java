@@ -1,20 +1,22 @@
 package banking;
 
+import java.util.ArrayList;
 import java.util.Scanner;
 
 public class banking {
-
-    int accountNo = 10001;
-    String name = "User";
+    int accountNo;
+    String name;
     float initialBalance = 0;
-    int pin = 321;
+    int pin;
+
+    public banking(int accountNo, int pin) {
+        this.accountNo = accountNo;
+        this.pin = pin;
+        this.name = "User";
+    }
 
     public boolean verifyAccount(int acc, int pn) {
         return acc == accountNo && pn == pin;
-    }
-
-    public int setAccount() {
-        return accountNo;
     }
 
     public void viewBalance() {
@@ -23,33 +25,61 @@ public class banking {
 
     public static void main(String[] args) {
         Scanner scanner = new Scanner(System.in);
-        banking account = new banking();
+        ArrayList<banking> registeredAccounts = new ArrayList<>();
+        int choice;
 
-        System.out.print("Enter Account Number: ");
-        int acc = scanner.nextInt();
+        do {
+            System.out.print("\nEnter Account Number: ");
+            int acc = scanner.nextInt();
 
-        int attempts = 0;
-        boolean verified = false;
+            banking matchedAccount = null;
 
-        while (attempts < 3) {
-            System.out.print("Enter PIN: ");
-            int inputPin = scanner.nextInt();
-
-            if (account.verifyAccount(acc, inputPin)) {
-                System.out.println("Login successful!");
-                account.viewBalance();  // Action after login
-                verified = true;
-                break;
-            } else {
-                attempts++;
-                System.out.println("Incorrect PIN. Attempt " + attempts + " of 3.\n");
+            for (banking b : registeredAccounts) {
+                if (b.accountNo == acc) {
+                    matchedAccount = b;
+                    break;
+                }
             }
-        }
 
-        if (!verified) {
-            System.out.println("Too many failed attempts. Access denied.");
-        }
+            if (matchedAccount == null) {
+                System.out.print("Set PIN: ");
+                int newPin = scanner.nextInt();
+                banking newAccount = new banking(acc, newPin);
+                registeredAccounts.add(newAccount);
+                System.out.println("Account registered!");
+            } else {
+                int attempts = 0;
+                boolean verified = false;
 
+                while (attempts < 3) {
+                    System.out.print("Enter PIN: ");
+                    int inputPin = scanner.nextInt();
+
+                    if (matchedAccount.verifyAccount(acc, inputPin)) {
+                        System.out.println("Login successful!");
+                        matchedAccount.viewBalance();
+                        verified = true;
+                        break;
+                    } else {
+                        attempts++;
+                        System.out.println("Incorrect PIN. Attempt " + attempts + " of 3.");
+                    }
+                }
+
+                if (!verified) {
+                    System.out.println("Too many failed attempts. Access denied.");
+                }
+            }
+
+            System.out.println("\nDo you wish to continue?");
+            System.out.println("1. Yes");
+            System.out.println("2. No");
+            System.out.print("Enter choice: ");
+            choice = scanner.nextInt();
+
+        } while (choice == 1);
+
+        System.out.println("Program exited.");
         scanner.close();
     }
 }
